@@ -1,95 +1,80 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client";
 
-export default function Home() {
+import React, { useState } from "react";
+import { Alert, Button, ConfigProvider, Flex, Input } from "antd";
+import axios from "axios";
+
+import theme from "../theme/themeConfig.js";
+import Title from "antd/es/typography/Title.js";
+
+const HomePage = () => {
+  const [text, setText] = useState("");
+  const [sentiment, setSentiment] = useState("");
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    const data = { text };
+
+    try {
+      const response = await axios.post("https://sentiment-analysis-example-zvv4kgaupa-et.a.run.app/", data, {
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+
+          // Accept: "application/json", // Use "Accept: application/json"
+        },
+      });
+
+      if (response.status === 200) {
+        const result = response.data;
+        setSentiment(result.prediction);
+        console.log(sentiment);
+      } else {
+        // Handle error responses (e.g., display an error message)
+        console.error("Error fetching sentiment:", response.statusText);
+      }
+    } catch (error) {
+      // Handle network errors or other issues
+      console.error("Error:", error);
+    }
+  };
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <ConfigProvider theme={theme}>
+      <div className="App" style={{ width: "100%" }}>
+        <Flex
+          justify="center"
+          align="center"
+          style={{ height: "80vh" }}
+          vertical={true}
+        >
+          <Title level={2}>Hasil Analisis Sentimen Anda = {sentiment}</Title>
+          <Flex
+            vertical={false}
+            style={{ marginTop: "30px", marginBottom: "30px" }}
           >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
+            <Input
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="masukkan kalimat anda"
             />
-          </a>
-        </div>
+            <Button
+              style={{ marginLeft: "20px" }}
+              type="primary"
+              onClick={onSubmit}
+            >
+              Cek
+            </Button>
+          </Flex>
+          <Alert
+            message="Perhatian"
+            description="Bijaklah dalam berbahasa"
+            type="info"
+            showIcon
+          />
+        </Flex>
       </div>
+    </ConfigProvider>
+  );
+};
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
-}
+export default HomePage;
